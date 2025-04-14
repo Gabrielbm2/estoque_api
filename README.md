@@ -1,24 +1,44 @@
-# README
+# 📦 Estoque - API Ruby on Rails
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Aplicação web com autenticação de usuários via JWT, cadastro de produtos associados ao usuário, integração com Amazon S3 para upload de imagens, documentação via Swagger e testes automatizados com RSpec.
 
-Things you may want to cover:
+---
 
-* Ruby version
+## 🚀 Funcionalidades
 
-* System dependencies
+- Cadastro e login de usuários (Devise + JWT)
+- CRUD de produtos vinculados ao usuário autenticado
+- Upload de imagens dos produtos com Amazon S3
+- Testes automatizados com RSpec
+- Documentação da API com Swagger (rswag)
 
-* Configuration
+---
 
-* Database creation
+## 🛠️ Tecnologias
 
-* Database initialization
+- **Ruby on Rails** 7.x  
+- **PostgreSQL**  
+- **Devise + JWT** – Autenticação  
+- **Active Storage** + **Amazon S3** – Upload de arquivos  
+- **Rswag** – Documentação Swagger  
+- **RSpec** – Testes  
+- **FactoryBot** e **Faker** – Fixtures para testes  
 
-* How to run the test suite
+---
 
-* Services (job queues, cache servers, search engines, etc.)
+## ⚙️ Instalação
 
-* Deployment instructions
+```bash
+# Clone o projeto
+git clone git@github.com:Gabrielbm2/estoque_api.git
+cd estoque_api
 
-* ...
+# Instale as dependências
+bundle install
+yarn install
+
+# Configure o banco de dados
+rails db:create db:migrate
+
+# Inicie o servidor
+rails s
