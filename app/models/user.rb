@@ -1,3 +1,7 @@
+# Gemfile
+gem 'jwt'
+
+# app/models/user.rb
 class User < ApplicationRecord
   has_secure_password
   
@@ -19,5 +23,11 @@ class User < ApplicationRecord
   
   def can_modify_product?(product)
     self.admin? || product.user_id == self.id
+  end
+  
+  # Adicionando o método para gerar JWT
+  def generate_jwt
+    payload = { user_id: self.id }
+    JWT.encode(payload, Rails.application.secret_key_base, 'HS256')
   end
 end

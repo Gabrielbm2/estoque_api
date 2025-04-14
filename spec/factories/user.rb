@@ -3,7 +3,7 @@ FactoryBot.define do
     name { Faker::Name.name }
     email { Faker::Internet.unique.email }
     password { 'password123' }
-    role { 'user' }
+    role { 'admin' }
 
     trait :admin do
       role { 'admin' }
@@ -11,12 +11,7 @@ FactoryBot.define do
     
     trait :with_avatar do
       after(:build) do |user|
-        file_path = Rails.root.join('spec', 'fixtures', 'files', 'avatar.jpg')
-        user.avatar.attach(
-          io: File.open(file_path),
-          filename: 'avatar.jpg',
-          content_type: 'image/jpeg'
-        )
+        user.avatar.attach(io: StringIO.new('fake image data'), filename: 'avatar.jpg', content_type: 'image/jpeg')
       end
     end
     

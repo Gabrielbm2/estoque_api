@@ -41,6 +41,8 @@ gem 'devise', '~> 4.9'
 
 gem 'aws-sdk-s3', '~> 1.183'
 
+gem 'kaminari'
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem 'image_processing', '~> 1.2'
 
@@ -65,8 +67,9 @@ group :test do
   gem 'database_cleaner-active_record'
   gem 'shoulda-matchers'
   gem 'simplecov', require: false
+  gem 'factory_bot_rails'
 end
 
 gem 'rswag-api'
-gem 'rswag-specs' # ⬅️ move pra fora do grupo
-gem 'rswag-ui'
+gem 'rswag-specs', '~> 2.11'
+gem 'rswag-ui', '~> 2.11'

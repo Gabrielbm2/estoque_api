@@ -3,6 +3,10 @@
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
 
+  def current_user
+  @current_user ||= authenticate_user
+  end
+
   before_action :authenticate_user
 
   def authenticate_user

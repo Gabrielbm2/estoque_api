@@ -2,17 +2,33 @@
 
 module Api
   module V1
-    class UsersController < ApplicationController # rubocop:disable Style/Documentation
-      before_action :set_user, only: %i[show update destroy]
-      before_action :authorize_admin, only: [:index]
+    class UsersController < ApplicationController
+      before_action :set_user, only: %i[show update destroy make_admin]
+      before_action :authorize_admin, only: %i[index make_admin]
       before_action :authorize_user, only: %i[update destroy]
 
       def index
-        @users = User.all
+        @users = User.page(params[:page]).per(20)
 
         render json: {
-          users: @users.map { |user| user_data(user) }
+          users: @users.map { |user| user_data(user) },
+          total_count: User.count,
+          current_page: @users.current_page,
+          total_pages: @users.total_pages
         }
+      end
+
+      def create
+        @user = User.new(user_params)
+
+        if @user.save
+          render json: {
+            message: 'Usuário criado com sucesso',
+            user: user_data(@user)
+          }, status: :created
+        else
+          render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+        end
       end
 
       def show
@@ -21,6 +37,7 @@ module Api
 
       def update
         if user_params[:password].blank?
+          # Atualiza o usuário sem a senha
           params_without_password = user_params.except(:password, :password_confirmation)
           update_success = @user.update(params_without_password)
         else
@@ -45,10 +62,23 @@ module Api
         end
       end
 
+      def make_admin
+        if @user.update(role: 'admin')
+          render json: {
+            message: 'Usuário promovido a administrador com sucesso',
+            user: user_data(@user)
+          }, status: :ok
+        else
+          render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def set_user
         @user = User.find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Usuário não encontrado' }, status: :not_found
       end
 
       def user_params
@@ -56,16 +86,11 @@ module Api
       end
 
       def authorize_admin
-        return if current_user.admin?
-
-        render json: { error: 'Você não tem permissão para realizar esta ação' },
-               status: :forbidden
+        render json: { error: 'Você não tem permissão para realizar esta ação' }, status: :forbidden unless current_user&.admin?
       end
 
       def authorize_user
-        return if @user.id == current_user.id || current_user.admin?
-
-        render json: { error: 'Você não tem permissão para realizar esta ação' }, status: :forbidden
+        render json: { error: 'Você não tem permissão para realizar esta ação' }, status: :forbidden unless @user.id == current_user.id || current_user&.admin?
       end
 
       def user_data(user)
