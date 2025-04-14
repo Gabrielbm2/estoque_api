@@ -1,6 +1,9 @@
 class Product < ApplicationRecord
   belongs_to :user
   has_one_attached :image
+  belongs_to :file_image, class_name: "FileImage", optional: true
+
+  validates :user, presence: true
   
   validates :name, presence: true
   validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
@@ -49,9 +52,16 @@ class Product < ApplicationRecord
     image.variant(resize_to_fill: [400, 400]).processed
   end
   
+  def image_url
+    return file_image.url if file_image.present?
+    return Rails.application.routes.url_helpers.url_for(image) if image.attached?
+    nil
+  end
+  
   def as_json(options = {})
     super(options).merge(
-      image_url: image.attached? ? Rails.application.routes.url_helpers.url_for(image) : nil,
+      image_url: image_url,
+      file_image_id: file_image_id,
       user_name: user.name
     )
   end

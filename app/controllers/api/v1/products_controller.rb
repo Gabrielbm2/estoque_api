@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Api
   module V1
     class ProductsController < ApplicationController
@@ -37,15 +35,12 @@ module Api
       end
 
       def create
-        @product = current_user.products.new(product_params)
+    @product = current_user.products.new(product_params)  # Associando o produto ao usuário autenticado
 
         if @product.save
-          render json: {
-            message: 'Produto criado com sucesso',
-            product: product_data(@product)
-          }, status: :created
+          render json: @product, status: :created
         else
-          render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
+          render json: @product.errors, status: :unprocessable_entity
         end
       end
 
@@ -97,7 +92,7 @@ module Api
       end
 
       def product_params
-        params.permit(:name, :description, :price, :quantity, :image)
+        params.permit(:name, :description, :price, :quantity, :image, :file_image_id)
       end
 
       def authorize_product
@@ -149,7 +144,8 @@ module Api
           quantity: product.quantity,
           user_id: product.user_id,
           user_name: product.user.name,
-          image_url: product.image.attached? ? url_for(product.image) : nil,
+          image_url: product.image_url,
+          file_image_id: product.file_image_id,
           created_at: product.created_at,
           updated_at: product.updated_at
         }

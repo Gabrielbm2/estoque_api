@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Api
   module V1
     class UsersController < ApplicationController
@@ -37,7 +35,6 @@ module Api
 
       def update
         if user_params[:password].blank?
-          # Atualiza o usuário sem a senha
           params_without_password = user_params.except(:password, :password_confirmation)
           update_success = @user.update(params_without_password)
         else

@@ -14,27 +14,44 @@ RSpec.configure do |config|
   # By default, the operations defined in spec files are added to the first
   # document below. You can override this behavior by adding a openapi_spec tag to the
   # the root example_group in your specs, e.g. describe '...', openapi_spec: 'v2/swagger.json'
-  config.openapi_specs = {
-    'v1/swagger.yaml' => {
-      openapi: '3.0.1',
-      info: {
-        title: 'API V1',
-        version: 'v1'
-      },
-      paths: {},
-      servers: [
-        {
-          url: 'https://{defaultHost}',
-          variables: {
-            defaultHost: {
-              default: 'www.example.com'
+config.openapi_specs = {
+  'v1/swagger.yaml' => {
+    openapi: '3.0.1',
+    info: {
+      title: 'API V1',
+      version: 'v1'
+    },
+    paths: {},
+    servers: [
+      {
+        url: 'http://127.0.0.1:3000',
+        description: 'Localhost Server'
+      }
+    ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            description: 'Insira seu token JWT no formato: Bearer {token}'
+          }
+        },
+        schemas: {
+          error: {
+            type: 'object',
+            properties: {
+              message: { type: :string },
+              errors: { type: :object }
             }
           }
         }
+      },
+      security: [
+        { bearerAuth: [] }
       ]
     }
   }
-
   # Specify the format of the output Swagger file when running 'rswag:specs:swaggerize'.
   # The openapi_specs configuration option has the filename including format in
   # the key, this may want to be changed to avoid putting yaml in json files.

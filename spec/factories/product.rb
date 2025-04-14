@@ -5,6 +5,10 @@ FactoryBot.define do
     price { Faker::Commerce.price(range: 1..1000.0) }
     quantity { Faker::Number.between(from: 1, to: 100) }
     association :user
+    file_image_id { create(:file_image).id }
+    user_id { create(:user).id } 
+
+
     
     trait :out_of_stock do
       quantity { 0 }
