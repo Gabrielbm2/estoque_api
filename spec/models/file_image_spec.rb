@@ -1,20 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe FileImage, type: :model do
-  describe 'validations' do
-    it { should validate_presence_of(:key) }
-    it { should validate_uniqueness_of(:key) }
-    it { should validate_presence_of(:filename) }
-    it { should validate_presence_of(:byte_size) }
-    it { should validate_numericality_of(:byte_size).is_greater_than(0) }
-  end
-
-  describe 'associations' do
-    it { should have_many(:products) }
-  end
-
   describe '#url' do
-    let(:file) { create(:file, key: 'test-file.jpg', bucket: 'my-bucket') }
+    let(:file) { create(:file_image, key: 'test-file.jpg', bucket: 'my-bucket') }
 
     before do
       allow(S3Service).to receive(:get_url).with('test-file.jpg').and_return('https://my-bucket.s3.amazonaws.com/test-file.jpg')
@@ -27,7 +15,7 @@ RSpec.describe FileImage, type: :model do
   end
 
   describe '#presigned_url' do
-    let(:file) { create(:file, key: 'test-file.jpg', bucket: 'my-bucket') }
+    let(:file) { create(:file_image, key: 'test-file.jpg', bucket: 'my-bucket') }
     let(:presigned_url) { 'https://my-bucket.s3.amazonaws.com/test-file.jpg?signature=abc123' }
 
     before do

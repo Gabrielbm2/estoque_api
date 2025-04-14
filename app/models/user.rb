@@ -6,7 +6,7 @@ class User < ApplicationRecord
   has_many :products, dependent: :destroy
   has_one_attached :avatar
   
-  validates :email, presence: true, uniqueness: true
+  validates :email, uniqueness: { case_sensitive: false }, presence: true
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :name, presence: true
   validates :password, presence: true, length: { minimum: 6 }, if: -> { new_record? || !password.nil? }

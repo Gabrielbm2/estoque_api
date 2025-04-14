@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :file_image, class: FileImage do
+  factory :file_image do
     filename { 'test.pdf' }
     content_type { 'application/pdf' }
     key { "Uploads/#{SecureRandom.uuid}/test.pdf" }

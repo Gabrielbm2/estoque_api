@@ -49,6 +49,8 @@ gem 'image_processing', '~> 1.2'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 gem 'rack-cors'
 
+gem 'active_storage_validations'
+
 group :development, :test do
   gem 'byebug'
   gem 'debug', platforms: %i[mri mingw x64_mingw]
@@ -68,6 +70,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'simplecov', require: false
   gem 'factory_bot_rails'
+  gem 'shoulda-matchers'
 end
 
 gem 'rswag-api'

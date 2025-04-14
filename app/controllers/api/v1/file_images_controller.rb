@@ -25,6 +25,7 @@ module Api
             }
           }, status: :created
         rescue => e
+          Rails.logger.error("Erro ao fazer upload: #{e.message}")
           render json: { error: 'Erro ao fazer upload do arquivo' }, status: :unprocessable_entity
         end
       end
@@ -56,6 +57,7 @@ module Api
           
           render json: { message: 'Arquivo excluído com sucesso' }
         rescue => e
+          Rails.logger.error("Erro ao excluir arquivo: #{e.message}")
           render json: { error: 'Erro ao excluir o arquivo' }, status: :unprocessable_entity
         end
       rescue ActiveRecord::RecordNotFound

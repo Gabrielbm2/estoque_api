@@ -35,7 +35,7 @@ module Api
       end
 
       def create
-    @product = current_user.products.new(product_params)  # Associando o produto ao usuário autenticado
+    @product = current_user.products.new(product_params)
 
         if @product.save
           render json: @product, status: :created

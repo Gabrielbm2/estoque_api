@@ -4,16 +4,14 @@ FactoryBot.define do
     description { Faker::Lorem.paragraph }
     price { Faker::Commerce.price(range: 1..1000.0) }
     quantity { Faker::Number.between(from: 1, to: 100) }
+
     association :user
-    file_image_id { create(:file_image).id }
-    user_id { create(:user).id } 
+    association :file_image
 
-
-    
     trait :out_of_stock do
       quantity { 0 }
     end
-    
+
     trait :with_image do
       after(:build) do |product|
         file_path = Rails.root.join('spec', 'fixtures', 'files', 'product.jpg')
@@ -24,7 +22,7 @@ FactoryBot.define do
         )
       end
     end
-    
+
     factory :product_with_image, traits: [:with_image]
     factory :out_of_stock_product, traits: [:out_of_stock]
   end
