@@ -7,127 +7,532 @@ paths:
   "/api/v1/login":
     post:
       summary: login auth
+      description: Email ou senha incorretos
+      tags:
+        - Autenticação
+      parameters: []
       responses:
-        '200':
-          description: successful
+        "200":
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Token JWT para autenticação
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+        "401":
+          description: Credenciais inválidas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                  description: Email registrado do usuário
+                password:
+                  type: string
+                  example: password123
+                  description: Senha do usuário
+              required:
+                - email
+                - password
   "/api/v1/register":
     post:
-      summary: register auth
+      summary: registrar auth
+      description: Retorna erros de validação quando os dados fornecidos são inválidos
+      tags:
+        - Autenticação
+      parameters: []
       responses:
-        '200':
-          description: successful
+        "201":
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Token JWT para autenticação
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+        "422":
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: array
+                        items:
+                          type: string
+                      email:
+                        type: array
+                        items:
+                          type: string
+                      password:
+                        type: array
+                        items:
+                          type: string
+                      password_confirmation:
+                        type: array
+                        items:
+                          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: João Silva
+                  description: Nome completo do usuário
+                email:
+                  type: string
+                  example: joao@example.com
+                  description: Email único do usuário (será usado para login)
+                password:
+                  type: string
+                  example: securepass
+                  description: Senha com pelo menos 6 caracteres
+                password_confirmation:
+                  type: string
+                  example: securepass
+                  description: Confirmação da senha (deve ser igual à senha)
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
   "/api/v1/me":
     get:
       summary: me auth
+      description: Token inválido ou ausente
+      tags:
+        - Autenticação
+      security:
+        - bearerAuth: []
       responses:
-        '200':
-          description: successful
-  "/api/v1/products/{id}/update_stock":
-    parameters:
-    - name: id
-      in: path
-      description: id
-      required: true
-      schema:
-        type: string
+        "200":
+          description: Usuário autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        "401":
+          description: Não autorizado
+  "/api/v1/files":
     post:
-      summary: update_stock product
+      summary: criação do arquivo
+      description: Criação do arquivo.
+      tags:
+        - Arquivos
       responses:
-        '200':
+        "200":
           description: successful
-  "/api/v1/products":
-    get:
-      summary: list products
-      responses:
-        '200':
-          description: successful
-    post:
-      summary: create product
-      responses:
-        '200':
-          description: successful
-  "/api/v1/products/{id}":
+  "/api/v1/files/{id}":
     parameters:
-    - name: id
-      in: path
-      description: id
-      required: true
-      schema:
-        type: string
+      - name: id
+        in: path
+        description: id
+        required: true
+        schema:
+          type: string
     get:
-      summary: show product
+      summary: pesquisa arquivo com base no ID
+      description: Pesquisa um arquivo com base no ID.
+      tags:
+        - Arquivos
       responses:
-        '200':
-          description: successful
-    patch:
-      summary: update product
-      responses:
-        '200':
-          description: successful
-    put:
-      summary: update product
-      responses:
-        '200':
+        "200":
           description: successful
     delete:
-      summary: delete product
+      summary: deleta um arquivo com base no ID
+      description: Deleta um arquivo com base no ID.
+      tags:
+        - Arquivos
       responses:
-        '200':
+        "200":
           description: successful
+  "/api/v1/products/{id}/update_stock":
+    post:
+      summary: atualiza estoque do produto
+      security:
+        - bearerAuth: []
+      description:
+        Atualiza a quantidade em estoque de um produto específico. Permite
+        incrementar ou decrementar o estoque com base no valor fornecido.
+      tags:
+        - Produtos
+      parameters:
+        - name: id
+          in: path
+          description: ID do produto que terá o estoque atualizado
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Estoque atualizado com sucesso
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity_change:
+                  type: integer
+                  description:
+                    Valor de alteração do estoque. Positivo para adicionar,
+                    negativo para remover.
+              required:
+                - quantity_change
+  "/api/v1/products":
+    get:
+      summary: lista os produtos
+      security:
+        - bearerAuth: []
+      description: Retorna uma lista de todos os produtos disponíveis no sistema.
+      tags:
+        - Produtos
+      parameters:
+        - name: file_image_id
+          in: query
+          required: false
+          description: Filtrar produtos por ID do arquivo
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful
+    post:
+      summary: criação do produto
+      security:
+        - bearerAuth: []
+      description: Cria um novo produto no sistema com as informações fornecidas.
+      tags:
+        - Produtos
+      parameters: []
+      responses:
+        "201":
+          description: Produto criado com sucesso
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nome do produto
+                description:
+                  type: string
+                  description: Descrição detalhada do produto
+                price:
+                  type: number
+                  description: Preço unitário do produto
+                quantity:
+                  type: integer
+                  description: Quantidade inicial em estoque
+                file_image_id:
+                  type: integer
+                  description: ID do arquivo de imagem associado ao produto
+              required:
+                - name
+                - price
+                - quantity
+  "/api/v1/products/{id}":
+    parameters:
+      - name: id
+        in: path
+        description: ID único do produto
+        required: true
+        schema:
+          type: string
+    get:
+      summary: pesquisa o produto pelo ID
+      security:
+        - bearerAuth: []
+      description: Retorna informações detalhadas de um produto específico.
+      tags:
+        - Produtos
+      responses:
+        "200":
+          description: successful
+    patch:
+      summary: atualiza parcialmente o produto pelo ID
+      security:
+        - bearerAuth: []
+      description: Atualiza parcialmente as informações de um produto existente.
+      tags:
+        - Produtos
+      parameters: []
+      responses:
+        "200":
+          description: Produto atualizado com sucesso
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nome do produto
+                description:
+                  type: string
+                  description: Descrição detalhada do produto
+                price:
+                  type: number
+                  description: Preço unitário do produto
+                quantity:
+                  type: integer
+                  description: Quantidade em estoque
+                file_image_id:
+                  type: integer
+                  description: ID do arquivo de imagem associado ao produto
+    put:
+      summary: atualiza o produto pelo ID
+      security:
+        - bearerAuth: []
+      description: Substitui completamente as informações de um produto existente.
+      tags:
+        - Produtos
+      parameters: []
+      responses:
+        "200":
+          description: Produto atualizado com sucesso
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nome do produto
+                description:
+                  type: string
+                  description: Descrição detalhada do produto
+                price:
+                  type: number
+                  description: Preço unitário do produto
+                quantity:
+                  type: integer
+                  description: Quantidade em estoque
+                file_image_id:
+                  type: integer
+                  description: ID do arquivo de imagem associado ao produto
+    delete:
+      summary: deleta o produto pelo ID
+      security:
+        - bearerAuth: []
+      description: Remove permanentemente um produto do sistema.
+      tags:
+        - Produtos
+      responses:
+        "200":
+          description: Produto excluído com sucesso
+  "/api/v1/products/with_file_examples":
+    get:
+      summary: exemplos de produtos com arquivos
+      security:
+        - bearerAuth: []
+      description: Exemplos de resposta para produtos com arquivos associados
+      tags:
+        - Exemplos
+      responses:
+        "200":
+          description: exemplos de resposta
   "/api/v1/users/{user_id}/products":
     parameters:
-    - name: user_id
-      in: path
-      description: user_id
-      required: true
-      schema:
-        type: string
+      - name: user_id
+        in: path
+        description: ID único do usuário
+        required: true
+        schema:
+          type: string
     get:
-      summary: list products
+      summary: lista produtos do usuário pelo ID
+      security:
+        - bearerAuth: []
+      description: Retorna todos os produtos associados a um usuário específico.
+      tags:
+        - Produtos
       responses:
-        '200':
+        "200":
           description: successful
   "/api/v1/users":
     get:
-      summary: list users
+      summary: lista usuários
+      security:
+        - bearerAuth: []
+      description: Retorna uma lista de todos os usuários cadastrados no sistema.
+      tags:
+        - Usuários
       responses:
-        '200':
+        "200":
           description: successful
     post:
-      summary: create user
+      summary: cria um usuário
+      description: Cria um novo usuário no sistema com as informações fornecidas.
+      tags:
+        - Usuários
+      parameters: []
       responses:
-        '200':
+        "201":
           description: successful
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
   "/api/v1/users/{id}":
     parameters:
-    - name: id
-      in: path
-      description: id
-      required: true
-      schema:
-        type: string
+      - name: id
+        in: path
+        description: ID único do usuário
+        required: true
+        schema:
+          type: string
     get:
-      summary: show user
+      summary: pesquisa um usuário pelo seu ID
+      security:
+        - bearerAuth: []
+      description: Retorna informações detalhadas de um usuário específico.
+      tags:
+        - Usuários
       responses:
-        '200':
+        "200":
           description: successful
     patch:
-      summary: update user
+      summary: atualiza parcialmente um usuário pelo seu ID
+      security:
+        - bearerAuth: []
+      description: Atualiza parcialmente as informações de um usuário existente.
+      tags:
+        - Usuários
+      parameters: []
       responses:
-        '200':
+        "200":
           description: successful
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
     put:
-      summary: update user
+      summary: atualiza um usuário pelo seu ID
+      security:
+        - bearerAuth: []
+      description: Substitui completamente as informações de um usuário existente.
+      tags:
+        - Usuários
+      parameters: []
       responses:
-        '200':
+        "200":
           description: successful
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+              required:
+                - name
+                - email
     delete:
-      summary: delete user
+      summary: deleta um usuário pelo seu ID
+      security:
+        - bearerAuth: []
+      description: Remove permanentemente um usuário do sistema.
+      tags:
+        - Usuários
       responses:
-        '200':
+        "200":
           description: successful
 servers:
-- url: https://{defaultHost}
-  variables:
-    defaultHost:
-      default: www.example.com
+  - url: http://127.0.0.1:3000
+    description: Localhost Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Insira seu token JWT no formato: Bearer {token}"
+  schemas:
+    error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+security:
+  - bearerAuth: []
